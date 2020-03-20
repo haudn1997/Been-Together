@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "486694556893",
+    "firebase_url": "https://beentogether-5901c.firebaseio.com",
+    "project_id": "beentogether-5901c",
+    "storage_bucket": "beentogether-5901c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:486694556893:android:010392973216a65c163734",
+        "android_client_info": {
+          "package_name": "com.example.beentogether"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "486694556893-i26hpc2dfs1b2fbt5eh9g06jj02jmcj7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.beentogether",
+            "certificate_hash": "cfd458967e73c89abfd3f7b16acadc779beba022"
+          }
+        },
+        {
+          "client_id": "486694556893-gs7uh2luq2it02mc4fod6vru2rb2u6g9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQj4-L5HlGhPLNK8IqMM8NcqXb0VPnMcg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "486694556893-gs7uh2luq2it02mc4fod6vru2rb2u6g9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
