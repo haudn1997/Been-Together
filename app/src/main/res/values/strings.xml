@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">BeenTogether</string>
+    <string name="app_name">Been Together</string>
+    <string name="menu_calendar">Calerdar</string>
+    <string name="menu_setting">Setting</string>
 </resources>
