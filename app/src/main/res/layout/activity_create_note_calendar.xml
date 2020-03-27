@@ -67,7 +67,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:layout_weight="5"
-            android:src="@mipmap/ic_launcher_round"/>
+            android:background="@color/colorPrimary"
+            android:src="@drawable/backgroud_upload_image"/>
 
         <Button
             android:id="@+id/btnSaveNote"

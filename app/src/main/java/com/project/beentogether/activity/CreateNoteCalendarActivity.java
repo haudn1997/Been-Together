@@ -54,6 +54,8 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
     private FirebaseStorage storage;
     private StorageReference storageReference;
 
+    private boolean isCheckImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +77,8 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
         month = calendar.get(Calendar.MONTH);
         day = calendar.get(Calendar.DAY_OF_MONTH);
 
+        isCheckImage = false;
+
         mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,10 +89,14 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
         mBtnSaveNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTxtContentNote.getText().toString() != null || mDateView.getText().toString() != null) {
+                if (mTxtContentNote.getText().toString().trim().length() == 0 || mDateView.getText().toString() == getString(R.string.created_date) || !isCheckImage) {
+                    startActivity(new Intent(CreateNoteCalendarActivity.this, NoteCalendarActivity.class));
+                    Toast.makeText(CreateNoteCalendarActivity.this, "Không đủ thông tin để lưu", Toast.LENGTH_SHORT).show();
+                } else {
                     saveNoteCalendar();
+                    uploadImage();
                 }
-                uploadImage();
+
             }
         });
     }
@@ -114,7 +122,7 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
-                            Toast.makeText(CreateNoteCalendarActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(CreateNoteCalendarActivity.this, NoteCalendarActivity.class));
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -140,14 +148,11 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
         String dateCreated = mDateView.getText().toString();
         mNote = new NoteCalendarModel(contentNote, dateCreated);
         mDatabaseReference.push().setValue(mNote);
-        Toast.makeText(this, "Note saved", Toast.LENGTH_LONG).show();
-
     }
 
     @SuppressWarnings("deprecation")
     public void setDate(View view) {
         showDialog(999);
-        Toast.makeText(getApplicationContext(), "ca", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -168,6 +173,7 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
 
     private void showDate(int year, int month, int day) {
         mDateView.setText(new StringBuilder().append(day).append("/").append(month).append("/").append(year));
+        Toast.makeText(this, mDateView.getText().toString(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -179,6 +185,7 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
             // Setting image on image view using Bitmap
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
             mImageView.setImageBitmap(bitmap);
+            isCheckImage = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
