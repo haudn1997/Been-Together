@@ -1,4 +1,4 @@
-package com.example.beentogether;
+package com.project.beentogether;
 
 import android.content.Context;
 

@@ -1,4 +1,4 @@
-package com.example.beentogether.activity;
+package com.project.beentogether.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,7 +9,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.beentogether.R;
+import com.project.beentogether.R;
+
 
 public class NoteCalendarActivity extends AppCompatActivity {
     private ImageView mCalendar;

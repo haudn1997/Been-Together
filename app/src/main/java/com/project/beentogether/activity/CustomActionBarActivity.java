@@ -1,4 +1,4 @@
-package com.example.beentogether.activity;
+package com.project.beentogether.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.beentogether.R;
+import com.project.beentogether.R;
 
 public class CustomActionBarActivity extends AppCompatActivity {
 
