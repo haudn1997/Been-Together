@@ -26,7 +26,7 @@
             android:layout_marginBottom="16dp"
             android:layout_weight="0.5"
             android:gravity="center"
-            android:text="THÊM GHI CHÚ" />
+            android:text="@string/title_note" />
 
         <EditText
             android:id="@+id/txtContentNote"
@@ -35,7 +35,7 @@
             android:layout_marginBottom="16dp"
             android:layout_weight="3"
             android:gravity="top"
-            android:hint="NHẬP NỘI DUNG" />
+            android:hint="@string/content_note" />
 
         <Button
             android:id="@+id/btnDateCreated"
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
             android:onClick="setDate"
-            android:text="NGÀY TẠO GHI CHÚ" />
+            android:text="@string/created_date" />
     </LinearLayout>
 
     <LinearLayout
@@ -59,14 +59,15 @@
             android:layout_marginBottom="16dp"
             android:layout_weight="0.5"
             android:gravity="center"
-            android:text="CHỌN MỘT ẢNH" />
+            android:text="@string/title_image" />
 
         <ImageView
             android:id="@+id/imageNote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:layout_weight="5" />
+            android:layout_weight="5"
+            android:src="@mipmap/ic_launcher_round"/>
 
         <Button
             android:id="@+id/btnSaveNote"

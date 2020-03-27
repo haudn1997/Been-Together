@@ -1,10 +1,12 @@
 package com.project.beentogether.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -17,19 +19,25 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.project.beentogether.R;
 import com.project.beentogether.model.NoteCalendarModel;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.UUID;
 
 public class CreateNoteCalendarActivity extends AppCompatActivity {
-    private DatePicker datePicker;
     private Calendar calendar;
     private int year, month, day;
-    private Button mBtnSaveNote;
+    private Button mBtnSaveNote, mDateView;
     private ImageView mImageView;
     // request code
     private final int PICK_IMAGE_REQUEST = 22;
@@ -37,9 +45,14 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
     private Uri filePath;
     private NoteCalendarModel mNote;
     private EditText mTxtContentNote;
-    private Button mDateView;
+
+    //Save data to firebase db
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseReference;
+
+    //Save image to storage
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +61,9 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mFirebaseDatabase.getReference().child("notes");
+
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         mDateView = findViewById(R.id.btnDateCreated);
         mBtnSaveNote = findViewById(R.id.btnSaveNote);
@@ -69,7 +85,10 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
         mBtnSaveNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveNoteCalendar();
+                if (mTxtContentNote.getText().toString() != null || mDateView.getText().toString() != null) {
+                    saveNoteCalendar();
+                }
+                uploadImage();
             }
         });
     }
@@ -82,11 +101,45 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
     }
 
+    private void uploadImage() {
+
+        if (filePath != null) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            StorageReference ref = storageReference.child("been_together_picture/" + UUID.randomUUID().toString());
+            ref.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            Toast.makeText(CreateNoteCalendarActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(CreateNoteCalendarActivity.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
+                                    .getTotalByteCount());
+                            progressDialog.setMessage("Uploaded " + (int) progress + "%");
+                        }
+                    });
+        }
+    }
+
     private void saveNoteCalendar() {
         String contentNote = mTxtContentNote.getText().toString();
         String dateCreated = mDateView.getText().toString();
-        NoteCalendarModel note = new NoteCalendarModel(contentNote, dateCreated);
-        mDatabaseReference.push().setValue(note);
+        mNote = new NoteCalendarModel(contentNote, dateCreated);
+        mDatabaseReference.push().setValue(mNote);
         Toast.makeText(this, "Note saved", Toast.LENGTH_LONG).show();
 
     }
@@ -120,20 +173,6 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == PICK_IMAGE_REQUEST && requestCode == RESULT_OK && data != null && data.getData() != null) {
-//            Uri imageUri = data.getData();
-//            StorageReference ref = FirebaseUtil.mStorageReference.child(imageUri.getLastPathSegment());
-//            ref.putFile(imageUri).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                @Override
-//                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                    Toast.makeText(CreateNoteCalendarActivity.this, "Insert Immage Success!", Toast.LENGTH_SHORT).show();
-//                }
-//            }).addOnFailureListener(this, new OnFailureListener() {
-//                @Override
-//                public void onFailure(@NonNull Exception e) {
-//
-//                }
-//            });
         // Get the Uri of data
         filePath = data.getData();
         try {
@@ -143,6 +182,5 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        }
     }
 }

@@ -2,4 +2,8 @@
     <string name="app_name">Been Together</string>
     <string name="menu_calendar">Calerdar</string>
     <string name="menu_setting">Setting</string>
+    <string name="title_note">THÊM GHI CHÚ</string>
+    <string name="content_note">NHẬP NỘI DUNG</string>
+    <string name="created_date">NGÀY TẠO GHI CHÚ</string>
+    <string name="title_image">CHỌN MỘT ẢNH</string>
 </resources>
