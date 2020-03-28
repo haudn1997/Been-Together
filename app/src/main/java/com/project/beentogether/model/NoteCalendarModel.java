@@ -1,16 +1,13 @@
 package com.project.beentogether.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 public class NoteCalendarModel {
     private String id;
     private String contentNote;
     private String dateCreated;
-//    private String imageUrl;
+    private String imageUrl;
 
-//    public NoteCalendarModel() {
-//    }
+    public NoteCalendarModel() {
+    }
 
     public String getId() {
         return id;
@@ -36,17 +33,17 @@ public class NoteCalendarModel {
         this.dateCreated = dateCreated;
     }
 
-//    public String getImageUrl() {
-//        return imageUrl;
-//    }
-//
-//    public void setImageUrl(String imageUrl) {
-//        this.imageUrl = imageUrl;
-//    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
-    public NoteCalendarModel(String contentNote, String dateCreated) {
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public NoteCalendarModel(String contentNote, String dateCreated, String imageUrl) {
         this.contentNote = contentNote;
         this.dateCreated = dateCreated;
-//        this.imageUrl = imageUrl;
+        this.imageUrl = imageUrl;
     }
 }

@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -79,6 +80,8 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
 
         isCheckImage = false;
 
+        mTxtContentNote.requestFocus();
+
         mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,6 +124,7 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            mNote.setImageUrl(taskSnapshot.toString());
                             progressDialog.dismiss();
                             startActivity(new Intent(CreateNoteCalendarActivity.this, NoteCalendarActivity.class));
                         }
@@ -146,7 +150,7 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
     private void saveNoteCalendar() {
         String contentNote = mTxtContentNote.getText().toString();
         String dateCreated = mDateView.getText().toString();
-        mNote = new NoteCalendarModel(contentNote, dateCreated);
+        mNote = new NoteCalendarModel(contentNote, dateCreated, "");
         mDatabaseReference.push().setValue(mNote);
     }
 
@@ -173,19 +177,20 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
 
     private void showDate(int year, int month, int day) {
         mDateView.setText(new StringBuilder().append(day).append("/").append(month).append("/").append(year));
-        Toast.makeText(this, mDateView.getText().toString(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // Get the Uri of data
-        filePath = data.getData();
         try {
-            // Setting image on image view using Bitmap
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-            mImageView.setImageBitmap(bitmap);
-            isCheckImage = true;
+            if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data.getData() != null) {
+                // Get the Uri of data
+                filePath = data.getData();
+                // Setting image on image view using Bitmap
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                mImageView.setImageBitmap(bitmap);
+                isCheckImage = true;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

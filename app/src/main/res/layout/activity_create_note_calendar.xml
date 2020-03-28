@@ -4,19 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="50dp"
-    android:layout_marginBottom="50dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
     android:orientation="vertical"
+    android:background="@color/colorCustomActionBar"
     android:weightSum="10"
     tools:context=".activity.CreateNoteCalendarActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginBottom="20dp"
-        android:layout_weight="4"
+        android:layout_marginTop="30dp"
+        android:layout_weight="5"
         android:orientation="vertical">
 
         <TextView
@@ -25,31 +25,48 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:layout_weight="0.5"
+            android:fontFamily="@font/amita"
             android:gravity="center"
-            android:text="@string/title_note" />
+            android:text="@string/title_note"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="#F3EEEE"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/txtContentNote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:layout_weight="3"
+            android:paddingLeft="10dp"
+            android:layout_weight="4"
+            android:fontFamily="@font/amita"
             android:gravity="top"
-            android:hint="@string/content_note" />
+            android:background="@drawable/radius"
+            android:hint="@string/content_note"
+            android:textAllCaps="false" />
 
         <Button
             android:id="@+id/btnDateCreated"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:layout_weight="0.5"
+            android:fontFamily="@font/amita"
             android:onClick="setDate"
-            android:text="@string/created_date" />
+            android:text="@string/created_date"
+            android:textAllCaps="false"
+            android:textColor="#3A3839"
+            android:background="@drawable/radius"
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="6"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="50dp"
+        android:layout_weight="5"
         android:orientation="vertical">
 
         <TextView
@@ -57,6 +74,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:fontFamily="@font/amita"
+            android:textColor="#F3EEEE"
+            android:textSize="18sp"
             android:layout_weight="0.5"
             android:gravity="center"
             android:text="@string/title_image" />
@@ -64,17 +84,20 @@
         <ImageView
             android:id="@+id/imageNote"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginBottom="16dp"
             android:layout_weight="5"
-            android:background="@color/colorPrimary"
-            android:src="@drawable/backgroud_upload_image"/>
+            android:background="@drawable/radius"
+            android:src="@drawable/background_upload_image_64"/>
 
         <Button
             android:id="@+id/btnSaveNote"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
+            android:fontFamily="@font/amita"
+            android:textSize="18sp"
             android:layout_weight="0.5"
+            android:background="@drawable/radius"
             android:text="LƯU" />
     </LinearLayout>
 </LinearLayout>
