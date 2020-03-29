@@ -18,10 +18,13 @@
 
     <ImageButton
         android:id="@+id/noteCalendar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center_horizontal"
         android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/radius_button_note"
         app:srcCompat="@drawable/note_icon" />
 
 </LinearLayout>

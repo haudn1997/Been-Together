@@ -1,6 +1,8 @@
 package com.project.beentogether.model;
 
-public class NoteCalendarModel {
+import java.io.Serializable;
+
+public class NoteCalendarModel implements Serializable {
     private String id;
     private String contentNote;
     private String dateCreated;
@@ -42,8 +44,8 @@ public class NoteCalendarModel {
     }
 
     public NoteCalendarModel(String contentNote, String dateCreated, String imageUrl) {
-        this.contentNote = contentNote;
-        this.dateCreated = dateCreated;
-        this.imageUrl = imageUrl;
+        this.setContentNote(contentNote);
+        this.setDateCreated(dateCreated);
+        this.setImageUrl(imageUrl);
     }
 }

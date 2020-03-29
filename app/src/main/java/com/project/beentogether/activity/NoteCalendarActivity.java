@@ -1,6 +1,8 @@
 package com.project.beentogether.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.project.beentogether.R;
+import com.project.beentogether.util.NoteAdapter;
 
 
 public class NoteCalendarActivity extends AppCompatActivity {
@@ -56,5 +59,15 @@ public class NoteCalendarActivity extends AppCompatActivity {
                 startActivity(new Intent(NoteCalendarActivity.this, SettingsActivity.class));
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RecyclerView rvNotes = findViewById(R.id.listNoteCalendar);
+        final NoteAdapter adapter = new NoteAdapter();
+        rvNotes.setAdapter(adapter);
+        LinearLayoutManager notesLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rvNotes.setLayoutManager(notesLayoutManager);
     }
 }

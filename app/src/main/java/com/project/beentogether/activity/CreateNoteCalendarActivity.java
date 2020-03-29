@@ -20,8 +20,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -30,6 +32,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.project.beentogether.R;
 import com.project.beentogether.model.NoteCalendarModel;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -68,6 +71,8 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
+        mNote = new NoteCalendarModel();
+
         mDateView = findViewById(R.id.btnDateCreated);
         mBtnSaveNote = findViewById(R.id.btnSaveNote);
         mTxtContentNote = findViewById(R.id.txtContentNote);
@@ -97,7 +102,6 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
                     Toast.makeText(CreateNoteCalendarActivity.this, "Không đủ thông tin để lưu", Toast.LENGTH_SHORT).show();
                 } else {
                     saveNoteCalendar();
-                    uploadImage();
                 }
 
             }
@@ -120,38 +124,41 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
             progressDialog.show();
 
             StorageReference ref = storageReference.child("been_together_picture/" + UUID.randomUUID().toString());
-            ref.putFile(filePath)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            mNote.setImageUrl(taskSnapshot.toString());
-                            progressDialog.dismiss();
-                            startActivity(new Intent(CreateNoteCalendarActivity.this, NoteCalendarActivity.class));
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            progressDialog.dismiss();
-                            Toast.makeText(CreateNoteCalendarActivity.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
-                                    .getTotalByteCount());
-                            progressDialog.setMessage("Uploaded " + (int) progress + "%");
-                        }
-                    });
+            ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    progressDialog.dismiss();
+                    Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl();
+                    if (downloadUri.isSuccessful()) {
+                        String generatedFilePath = downloadUri.getResult().toString();
+                        mNote.setImageUrl(generatedFilePath);
+                    }
+                    mDatabaseReference.push().setValue(mNote);
+                    startActivity(new Intent(CreateNoteCalendarActivity.this, NoteCalendarActivity.class));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    progressDialog.dismiss();
+                    Toast.makeText(CreateNoteCalendarActivity.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
+                            .getTotalByteCount());
+                    progressDialog.setMessage("Uploaded " + (int) progress + "%");
+                }
+            });
         }
     }
 
     private void saveNoteCalendar() {
         String contentNote = mTxtContentNote.getText().toString();
         String dateCreated = mDateView.getText().toString();
-        mNote = new NoteCalendarModel(contentNote, dateCreated, "");
-        mDatabaseReference.push().setValue(mNote);
+        mNote.setContentNote(contentNote);
+        mNote.setDateCreated(dateCreated);
+        uploadImage();
     }
 
     @SuppressWarnings("deprecation")
@@ -187,11 +194,10 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
                 // Get the Uri of data
                 filePath = data.getData();
                 // Setting image on image view using Bitmap
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                mImageView.setImageBitmap(bitmap);
+                Picasso.with(mImageView.getContext()).load(filePath).into(mImageView);
                 isCheckImage = true;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

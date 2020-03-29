@@ -87,6 +87,7 @@
             android:layout_height="50dp"
             android:layout_marginBottom="16dp"
             android:layout_weight="5"
+            android:scaleType="fitXY"
             android:background="@drawable/radius"
             android:src="@drawable/background_upload_image_64"/>
 
