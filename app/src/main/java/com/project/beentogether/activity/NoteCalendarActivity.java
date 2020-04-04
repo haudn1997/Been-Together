@@ -65,7 +65,7 @@ public class NoteCalendarActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         RecyclerView rvNotes = findViewById(R.id.listNoteCalendar);
-        final NoteAdapter adapter = new NoteAdapter();
+        final NoteAdapter adapter = new NoteAdapter(this);
         rvNotes.setAdapter(adapter);
         LinearLayoutManager notesLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         rvNotes.setLayoutManager(notesLayoutManager);

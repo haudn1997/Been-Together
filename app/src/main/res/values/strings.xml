@@ -6,4 +6,7 @@
     <string name="content_note">NHẬP NỘI DUNG</string>
     <string name="created_date">NGÀY TẠO GHI CHÚ</string>
     <string name="title_image">CHỌN MỘT ẢNH</string>
+    <string name="btn_close_dialog">CLOSE</string>
+    <string name="btn_delete_dialog">DELETE</string>
+    <string name="btn_edit_dialog">EDIT</string>
 </resources>

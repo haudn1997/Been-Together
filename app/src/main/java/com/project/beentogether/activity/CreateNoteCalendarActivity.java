@@ -8,11 +8,8 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -20,7 +17,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -34,7 +30,6 @@ import com.project.beentogether.R;
 import com.project.beentogether.model.NoteCalendarModel;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -106,6 +101,16 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
 
             }
         });
+
+        Intent intent = getIntent();
+        mNote = intent.getParcelableExtra("Note");
+        if (mNote == null) {
+            mNote = new NoteCalendarModel();
+        } else {
+            mTxtContentNote.setText(mNote.getContentNote());
+            mDateView.setText(mNote.getDateCreated());
+            Picasso.with(mImageView.getContext()).load(mNote.getImageUrl()).into(mImageView);
+        }
     }
 
     private void chooseImage() {
@@ -133,7 +138,11 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
                         String generatedFilePath = downloadUri.getResult().toString();
                         mNote.setImageUrl(generatedFilePath);
                     }
-                    mDatabaseReference.push().setValue(mNote);
+                    if (mNote.getId() == null) {
+                        mDatabaseReference.push().setValue(mNote);
+                    } else {
+                        mDatabaseReference.child(mNote.getId()).setValue(mNote);
+                    }
                     startActivity(new Intent(CreateNoteCalendarActivity.this, NoteCalendarActivity.class));
                 }
             }).addOnFailureListener(new OnFailureListener() {

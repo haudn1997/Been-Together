@@ -1,10 +1,12 @@
 package com.project.beentogether.util;
 
+import android.app.Dialog;
 import android.content.Context;
-import android.util.Log;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,23 +20,28 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.project.beentogether.R;
+import com.project.beentogether.activity.CreateNoteCalendarActivity;
+import com.project.beentogether.activity.NoteCalendarActivity;
 import com.project.beentogether.model.NoteCalendarModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
     ArrayList<NoteCalendarModel> notes;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseReference;
     private ChildEventListener mChildListener;
+    Context ctx;
+    private NoteCalendarModel note;
 
-    public NoteAdapter() {
+    public NoteAdapter(Context ctx) {
+        this.ctx = ctx;
+        note = new NoteCalendarModel();
         FirebaseUtil.openFbReference("notes");
         mFirebaseDatabase = FirebaseUtil.mFirebaseDatabase;
         mDatabaseReference = FirebaseUtil.mDatabaseReference;
-        notes = new ArrayList<>();
+        notes = FirebaseUtil.mNotes;
 
         mChildListener = new ChildEventListener() {
             @Override
@@ -87,15 +94,17 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         return notes.size();
     }
 
-    public class NoteViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvCreatedDate;
-        ImageView imageNoteCalendar;
+    public class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView tvTitle, tvCreatedDate, txtContentDialog, txtCreatedDateDialog;
+        ImageView imageNoteCalendar, imageNoteCalendarDialog;
+        Button btnCloseDialog, btnDeleteDialog, btnEditDialog;
 
         public NoteViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvCreatedDate = itemView.findViewById(R.id.tvCreatedDate);
             imageNoteCalendar = itemView.findViewById(R.id.imageNoteCalendar);
+            itemView.setOnClickListener(this);
 
         }
 
@@ -109,6 +118,64 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             if (imageUrl != null && imageUrl.isEmpty() == false) {
                 Picasso.with(imageNoteCalendar.getContext()).load(imageUrl).into(imageNoteCalendar);
             }
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            note = notes.get(position);
+            showDialog(v);
+        }
+
+        private void showDialog(View v) {
+            final Dialog dialog = new Dialog(v.getContext());
+            dialog.setContentView(R.layout.show_list_note_calendar_dialog);
+
+            initParametersInDialog(dialog);
+            passValuesToDialog();
+
+            btnCloseDialog.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+
+            btnDeleteDialog.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mDatabaseReference.child(note.getId()).removeValue();
+                    Intent intent = new Intent(ctx, NoteCalendarActivity.class);
+                    ctx.startActivity(intent);
+                }
+            });
+
+            btnEditDialog.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ctx, CreateNoteCalendarActivity.class);
+                    intent.putExtra("Note", note);
+                    ctx.startActivity(intent);
+                }
+            });
+
+            dialog.show();
+        }
+
+        private void passValuesToDialog() {
+            txtContentDialog.setText(note.getContentNote());
+            txtCreatedDateDialog.setText(note.getDateCreated());
+            Picasso.with(imageNoteCalendarDialog.getContext()).load(note.getImageUrl()).into(imageNoteCalendarDialog);
+        }
+
+        private void initParametersInDialog(Dialog dialog) {
+            txtContentDialog = dialog.findViewById(R.id.txtContentDialog);
+            txtCreatedDateDialog = dialog.findViewById(R.id.txtCreatedDateDialog);
+            imageNoteCalendarDialog = dialog.findViewById(R.id.imageNoteCalendarDialog);
+
+            btnCloseDialog = dialog.findViewById(R.id.btnCloseDialog);
+            btnDeleteDialog = dialog.findViewById(R.id.btnDeleteDialog);
+            btnEditDialog = dialog.findViewById(R.id.btnEditDialog);
         }
     }
 }
