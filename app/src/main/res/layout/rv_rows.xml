@@ -27,7 +27,7 @@
     <ImageView
         android:id="@+id/imageNoteCalendar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:background="@drawable/radius_note_calendar_view"
         android:src="@mipmap/ic_launcher"
         android:scaleType="fitXY"
