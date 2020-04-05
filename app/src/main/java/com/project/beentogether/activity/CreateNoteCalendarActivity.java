@@ -10,6 +10,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -128,22 +129,27 @@ public class CreateNoteCalendarActivity extends AppCompatActivity {
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
 
-            StorageReference ref = storageReference.child("been_together_picture/" + UUID.randomUUID().toString());
+            final StorageReference ref = storageReference.child("been_together_picture/" + UUID.randomUUID().toString());
             ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     progressDialog.dismiss();
-                    Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl();
-                    if (downloadUri.isSuccessful()) {
-                        String generatedFilePath = downloadUri.getResult().toString();
-                        mNote.setImageUrl(generatedFilePath);
-                    }
-                    if (mNote.getId() == null) {
-                        mDatabaseReference.push().setValue(mNote);
-                    } else {
-                        mDatabaseReference.child(mNote.getId()).setValue(mNote);
-                    }
-                    startActivity(new Intent(CreateNoteCalendarActivity.this, NoteCalendarActivity.class));
+                    String imageName = taskSnapshot.getStorage().getPath();
+                    mNote.setImageName(imageName);
+                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String imageUrl = String.valueOf(uri);
+                            mNote.setImageUrl(imageUrl);
+
+                            if (mNote.getId() == null) {
+                                mDatabaseReference.push().setValue(mNote);
+                            } else {
+                                mDatabaseReference.child(mNote.getId()).setValue(mNote);
+                            }
+                            startActivity(new Intent(CreateNoteCalendarActivity.this, NoteCalendarActivity.class));
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override

@@ -8,6 +8,7 @@ public class NoteCalendarModel implements Parcelable {
     private String contentNote;
     private String dateCreated;
     private String imageUrl;
+    private String imageName;
 
     public NoteCalendarModel() {
     }
@@ -44,10 +45,19 @@ public class NoteCalendarModel implements Parcelable {
         this.imageUrl = imageUrl;
     }
 
-    public NoteCalendarModel(String contentNote, String dateCreated, String imageUrl) {
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public NoteCalendarModel(String contentNote, String dateCreated, String imageUrl, String imageName) {
         this.setContentNote(contentNote);
         this.setDateCreated(dateCreated);
         this.setImageUrl(imageUrl);
+        this.setImageName(imageName);
     }
 
 
@@ -62,6 +72,7 @@ public class NoteCalendarModel implements Parcelable {
         dest.writeString(this.contentNote);
         dest.writeString(this.dateCreated);
         dest.writeString(this.imageUrl);
+        dest.writeString(this.imageName);
     }
 
     protected NoteCalendarModel(Parcel in) {
@@ -69,6 +80,7 @@ public class NoteCalendarModel implements Parcelable {
         this.contentNote = in.readString();
         this.dateCreated = in.readString();
         this.imageUrl = in.readString();
+        this.imageName = in.readString();
     }
 
     public static final Creator<NoteCalendarModel> CREATOR = new Creator<NoteCalendarModel>() {

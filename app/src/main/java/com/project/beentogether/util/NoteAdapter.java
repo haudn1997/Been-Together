@@ -3,6 +3,7 @@ package com.project.beentogether.util;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.StorageReference;
 import com.project.beentogether.R;
 import com.project.beentogether.activity.CreateNoteCalendarActivity;
 import com.project.beentogether.activity.NoteCalendarActivity;
@@ -145,6 +149,21 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
                 @Override
                 public void onClick(View v) {
                     mDatabaseReference.child(note.getId()).removeValue();
+                    if(note.getImageName() != null && note.getImageName().isEmpty() == false) {
+                        StorageReference picRef = FirebaseUtil.mStorage.getReference().child(note.getImageName());
+                        picRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("Delete Image", "Image Successfully Deleted");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d("Delete Image", e.getMessage());
+                            }
+                        });
+                    }
+
                     Intent intent = new Intent(ctx, NoteCalendarActivity.class);
                     ctx.startActivity(intent);
                 }
