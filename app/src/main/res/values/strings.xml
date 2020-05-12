@@ -9,4 +9,9 @@
     <string name="btn_close_dialog">ĐÓNG</string>
     <string name="btn_delete_dialog">XÓA</string>
     <string name="btn_edit_dialog">SỬA</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+    <string name="nick_name_1">Nickname 1</string>
+    <string name="nick_name_2">Nickname 2</string>
 </resources>
