@@ -14,4 +14,10 @@
     <string name="tab_text_3">Tab 3</string>
     <string name="nick_name_1">Nickname 1</string>
     <string name="nick_name_2">Nickname 2</string>
+
+    <string name="change_avatar">Đổi ảnh đại diện</string>
+    <string name="change_avatar_shape">Đổi hình dạng ảnh đại diện</string>
+    <string name="change_display_name">Đổi tên hiển thị</string>
+    <string name="change_birthday">Đổi ngày sinh nhật</string>
+    <string name="change_sex">Đổi giới tính</string>
 </resources>
