@@ -1,9 +1,11 @@
 package com.project.beentogether.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -14,18 +16,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.project.beentogether.R;
+import com.project.beentogether.model.InformationMaleAndFemale;
+import com.project.beentogether.util.FirebaseUtil;
 import com.project.beentogether.util.SectionsPagerAdapter;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
 
@@ -36,13 +48,19 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter sectionsPagerAdapter;
     private TabLayout mTabs;
     private ImageView mImageMale, mImageFemale, mIconMale, mIconFemale, mCalendar, mSettings, mImageLove;
-    private String menuInforMaleFemale;
+    private static String menuInforMaleFemale;
     private Uri filePath;
 
     private final int PICK_IMAGE_REQUEST = 22;
 
-    private FirebaseDatabase mDatabase;
-    private DatabaseReference mDatabaseReference;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mDatabaseReferenceColor, mDatabaseReferenceMale, mDatabaseReferenceFemale;
+
+    //Save image to storage
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
+
+    private InformationMaleAndFemale mInformationMaleAndFemale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +80,39 @@ public class MainActivity extends AppCompatActivity {
         mTxtMale = findViewById(R.id.txtMale);
         mTxtFemale = findViewById(R.id.txtFemale);
 
-        mDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference = mDatabase.getReference("color_love").child("color");
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+
+        mInformationMaleAndFemale = new InformationMaleAndFemale();
+
+        mFirebaseDatabase = FirebaseUtil.mFirebaseDatabase;
+
+        FirebaseUtil.openFbReference("color_love");
+        mDatabaseReferenceColor = FirebaseUtil.mDatabaseReference.child("color");
+
+        FirebaseUtil.openFbReference("information_male");
+        mDatabaseReferenceMale = FirebaseUtil.mDatabaseReference;
+
+        FirebaseUtil.openFbReference("information_female");
+        mDatabaseReferenceFemale = FirebaseUtil.mDatabaseReference;
 
         onClickItemActionBar();
 
-        // Read from the database
-        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+        sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+        viewPager.setAdapter(sectionsPagerAdapter);
+        mTabs.setupWithViewPager(viewPager);
+
+        //Set Icon to Tab Menu
+        mTabs.getTabAt(0).setIcon(R.drawable.tab_date);
+        mTabs.getTabAt(1).setIcon(R.drawable.tab_album);
+        mTabs.getTabAt(2).setIcon(R.drawable.tab_note);
+
+        readDataFromFirebase();
+    }
+
+    private void readDataFromFirebase() {
+        // Read data of color from the Firebase database
+        mDatabaseReferenceColor.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 int value = dataSnapshot.getValue(Integer.class);
@@ -81,14 +125,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
-        viewPager.setAdapter(sectionsPagerAdapter);
-        mTabs.setupWithViewPager(viewPager);
+        // Read data of image male from the Firebase database
+        mDatabaseReferenceMale.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                InformationMaleAndFemale mInformationMaleAndFemale = dataSnapshot.getValue(InformationMaleAndFemale.class);
+                Picasso.with(mImageMale.getContext()).load(mInformationMaleAndFemale.getImageAvatarUrl()).into(mImageMale);
+            }
 
-        //Set Icon to Tab Menu
-        mTabs.getTabAt(0).setIcon(R.drawable.tab_date);
-        mTabs.getTabAt(1).setIcon(R.drawable.tab_album);
-        mTabs.getTabAt(2).setIcon(R.drawable.tab_note);
+            @Override
+            public void onCancelled(DatabaseError error) {
+
+            }
+        });
+
+        // Read data of image female from the Firebase database
+        mDatabaseReferenceFemale.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                InformationMaleAndFemale mInformationMaleAndFemale = dataSnapshot.getValue(InformationMaleAndFemale.class);
+                Picasso.with(mImageFemale.getContext()).load(mInformationMaleAndFemale.getImageAvatarUrl()).into(mImageFemale);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+
+            }
+        });
     }
 
     private void onClickItemActionBar() {
@@ -184,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onChooseColor(int position, int color) {
                         mImageLove.setColorFilter(color);
-                        mDatabaseReference.setValue(color);
+                        mDatabaseReferenceColor.setValue(color);
                     }
 
                     @Override
@@ -243,12 +306,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onContextItemSelected(item);
     }
 
-    private void handleAvatarMenu(String menuInforMaleFemale) {
-        switch (menuInforMaleFemale) {
+    private void handleAvatarMenu(String menuInforMaleOrFemale) {
+        switch (menuInforMaleOrFemale) {
             case "ImageMale":
-                chooseImage();
-                break;
             case "ImageFemale":
+                chooseImage(menuInforMaleOrFemale);
                 break;
             case "IconMale":
                 break;
@@ -257,11 +319,11 @@ public class MainActivity extends AppCompatActivity {
             case "MaleName":
                 break;
             case "FemaleName":
-
         }
     }
 
-    private void chooseImage() {
+    private void chooseImage(String menuInforMaleOrFemale) {
+        menuInforMaleFemale = menuInforMaleOrFemale;
         // Defining Implicit Intent to mobile gallery
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -277,10 +339,50 @@ public class MainActivity extends AppCompatActivity {
                 // Get the Uri of data
                 filePath = data.getData();
                 // Setting image on image view using Bitmap
-                Picasso.with(mImageMale.getContext()).load(filePath).into(mImageMale);
+                if (menuInforMaleFemale == "ImageMale") {
+                    Picasso.with(mImageMale.getContext()).load(filePath).into(mImageMale);
+                }
+                if (menuInforMaleFemale == "ImageFemale") {
+                    Picasso.with(mImageFemale.getContext()).load(filePath).into(mImageFemale);
+                }
+
+                uploadImage(menuInforMaleFemale);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void uploadImage(final String menuInforMaleFemale) {
+        if (filePath != null) {
+            final StorageReference ref = storageReference.child("image_male_female/" + UUID.randomUUID().toString());
+            ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    String imageName = taskSnapshot.getStorage().getPath();
+                    mInformationMaleAndFemale.setImageAvatar(imageName);
+                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String imageUrl = String.valueOf(uri);
+                            mInformationMaleAndFemale.setImageAvatarUrl(imageUrl);
+
+                            //Write Image Male to Firebase
+                            if (menuInforMaleFemale == "ImageMale") {
+                                mDatabaseReferenceMale.child("imageAvatar").setValue(mInformationMaleAndFemale.getImageAvatar());
+                                mDatabaseReferenceMale.child("imageAvatarUrl").setValue(mInformationMaleAndFemale.getImageAvatarUrl());
+                            }
+
+                            //Write Image Female to Firebase
+                            if (menuInforMaleFemale == "ImageFemale") {
+                                mDatabaseReferenceFemale.child("imageAvatar").setValue(mInformationMaleAndFemale.getImageAvatar());
+                                mDatabaseReferenceFemale.child("imageAvatarUrl").setValue(mInformationMaleAndFemale.getImageAvatarUrl());
+                            }
+                        }
+                    });
+
+                }
+            });
         }
     }
 

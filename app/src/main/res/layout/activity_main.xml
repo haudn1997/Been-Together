@@ -47,7 +47,7 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                app:cardCornerRadius="60dp">
+                app:cardCornerRadius="40dp">
 
                 <ImageView
                     android:id="@+id/imageMale"
